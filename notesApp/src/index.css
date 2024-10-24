@@ -17,6 +17,17 @@
         min-height: 100vh; 
         overflow: hidden;
     }
+    /* body {
+        
+        background: linear-gradient(to bottom, #e9d5ff, #000000);
+        background-attachment: fixed; 
+        background-size: cover; 
+        background-repeat: no-repeat; 
+        min-height: 100vh;
+        overflow: hidden; 
+        margin: 0;
+    } */
+    
 }
 
 @layer components{
@@ -26,6 +37,11 @@
     .btn-primary{
         @apply w-full text-sm bg-gray-800 text-white p-2 rounded my-1 hover:bg-slate-900;
     }
-    
+    .icon-btn{
+        @apply text-xl text-slate-500 cursor-pointer hover:text-gray-800;
+    }
+    .input-label{
+        @apply text-xs text-slate-800
+    }
 
 }
