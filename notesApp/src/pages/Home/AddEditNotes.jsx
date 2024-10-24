@@ -32,8 +32,6 @@ const AddEditNotes=({type, notedata, onClose})=> {
         }
     };
 
-
-
     return(
 
         <div className='bg-purple-200 relative '>

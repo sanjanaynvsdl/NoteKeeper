@@ -12,6 +12,7 @@ function Home() {
         type:"add",
         data:null,
     });
+    
     return(
         <>
             <Navbar/>

@@ -11,6 +11,7 @@ function TagInput({tags, setTags}) {
     }
     const addNewTag=()=> {
         if(inputValue.trim()!=="") {
+            //Spread operator, first copies the existing array and adds another value
             setTags([...tags, inputValue.trim()]);
             setInputValue("");
         }
@@ -49,7 +50,7 @@ function TagInput({tags, setTags}) {
                 className='text-sm bg-transparent border  border-gray-900 px-3 py-1.5 rounded outline-none'/>
 
                 <button
-                onClick={()=> {addNewTag()}}
+                onClick={addNewTag}
                 className='w-8 h-8 flex items-center justify-center rounded border border-gray-900 hover:bg-gray-800'>
                     <MdAdd className='text-2xl text-gray-900 hover:text-white'/>
                 </button>
@@ -58,3 +59,9 @@ function TagInput({tags, setTags}) {
     )
 }
 export default TagInput;
+
+
+
+//.inputValue.trim() -> trims the extra spaces
+//[...tags] copies the existing array and adds the next value //instead of tags.push() we've used spread operator
+//map-usage in the above component

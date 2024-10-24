@@ -11,6 +11,7 @@ const Passwordd = ({value, onChange, placeholder})=> {
     }
     return (
         <div className='flex items-center  w-full text-sm '>
+            
             <input
             value={value}
             type="password"
@@ -35,6 +36,7 @@ const Passwordd = ({value, onChange, placeholder})=> {
             onClick={()=> togglePass()}
             className='text-gray-800 cursor-pointer'/>
             } */}
+
             
         </div>
     )
