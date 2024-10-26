@@ -1,8 +1,8 @@
-require("dotenv").config();
+require("dotenv").config();                 //To load .env file!
 
-const config=require('./config.json');
-const mongoose=require('mongoose');
-mongoose.connect(config.connectionString);
+const config=require('./config.json');      //Get the mongoDB url,
+const mongoose=require('mongoose');         //get mongoose library
+mongoose.connect(config.connectionString);  //connect the string!
 
 //Importing models
 const User=require('./models/user.model');
@@ -18,7 +18,7 @@ const app=express();                //line initializes a new Express application
 
 
 const jwt=require('jsonwebtoken');
-const {authenticateToken}= require('./utillities');
+const {authenticateToken}= require('./utillities');   //middleware to validate token!
 
 app.use(express.json());            //Middleware that parses incoming requests with JSON payloads
 app.use(                            //CORS, used specify which origins are permitted to access resources from server.
@@ -158,6 +158,8 @@ app.post("/login",async(req,res)=> {
 
 //get-user
 app.get("/get-user", authenticateToken ,async(req,res)=> {
+    //Middleware (authenticateToken will be triggered first, if this doesn't throw an error then)
+    //The route-logic will be called and data will be extracted! using req.user (where we have set in accessToken)
     const {user}=req.user;
     const isUser=await User.findOne({_id:user._id});
 
@@ -180,7 +182,7 @@ app.get("/get-user", authenticateToken ,async(req,res)=> {
              },
         message:"used found!"
     })
-})
+});
 
 //add-note
 app.post("/add-note", authenticateToken , async(req,res)=> {
@@ -385,6 +387,33 @@ module.exports=app;
 
 
 //Learn about the authenticateToken, 400, 401, 404, error - where to use which!
+
+
+//Example to understand the JWT more, better! 
+//BELOW CODE IS NOT RELARED TO THIS APPLICATION!
+//When token is VALID:
+app.get("/my-orders", authenticateToken, async(req, res) => {
+    // ✅ Token was good, so req.user exists!
+    console.log(req.user);  // { _id: '123', email: 'user@example.com', ...}
+    // Now we can safely use this data
+    // const orders = await Orders.find({ userId: req.user._id });
+    // res.json(orders);
+});
+
+// When token is INVALID:
+app.get("/my-orders", authenticateToken, (req, res) => {
+    // ❌ This code never runs!
+    // authenticateToken already sent 401 response
+    //router-part
+    console.log("You'll never see this!");
+});
+
+
+// authenticateToken is like a security guard
+// It runs BEFORE your main route code
+// If token is bad, your route code never runs
+// If token is good, you get user data in req.user
+// This is why it's called "middleware" - it's in the middle, between the request and your route handler! 
 
 
 
