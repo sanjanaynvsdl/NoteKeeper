@@ -24,7 +24,7 @@ app.use(express.json());            //Middleware that parses incoming requests w
 app.use(                            //CORS, used specify which origins are permitted to access resources from server.
     cors({                          // allows all origins to make requests to this server.
         origin:function (origin, callback) {
-            if((process.env.FRONTEND_URLS).split(",").indexOf(origin)!=-1) {
+            if(process.env.FRONTEND_URLS.split(",").indexOf(origin)!=-1) {
                 callback(null, true);
             } else {
                 callback(new Error(" You are not allowed"));
