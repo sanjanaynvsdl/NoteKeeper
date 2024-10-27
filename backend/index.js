@@ -1,8 +1,8 @@
 require("dotenv").config();                 //To load .env file!
 
-const config=require('./config.json');      //Get the mongoDB url,
+// const config=require('./config.json');      //Get the mongoDB url,
 const mongoose=require('mongoose');         //get mongoose library
-mongoose.connect(config.connectionString);  //connect the string!
+mongoose.connect(process.env.MONGO_DB_URL);  //connect the string!
 
 //Importing models
 const User=require('./models/user.model');
@@ -23,7 +23,13 @@ const {authenticateToken}= require('./utillities');   //middleware to validate t
 app.use(express.json());            //Middleware that parses incoming requests with JSON payloads
 app.use(                            //CORS, used specify which origins are permitted to access resources from server.
     cors({                          // allows all origins to make requests to this server.
-        origin:"*"
+        origin:function (origin, callback) {
+            if((process.env.FRONTEND_URLS).split(",").indexOf(origin)!=-1) {
+                callback(null, true);
+            } else {
+                callback(new Error(" You are not allowed"));
+            }
+        }
     })
 )
 
@@ -424,7 +430,9 @@ app.get("/search-notes/", authenticateToken, async(req,res)=> {
 
 
 
-app.listen(8000);
+app.listen(8000,()=> {
+    console.log(`server started at this port-8000`);
+});
 
 module.exports=app;
 
