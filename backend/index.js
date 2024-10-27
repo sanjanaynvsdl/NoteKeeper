@@ -21,17 +21,38 @@ const jwt=require('jsonwebtoken');
 const {authenticateToken}= require('./utillities');   //middleware to validate token!
 
 app.use(express.json());            //Middleware that parses incoming requests with JSON payloads
-app.use(                            //CORS, used specify which origins are permitted to access resources from server.
-    cors({                          // allows all origins to make requests to this server.
-        origin:function (origin, callback) {
-            if(process.env.FRONTEND_URLS.split(",").indexOf(origin)!=-1) {
-                callback(null, true);
-            } else {
-                callback(new Error(" You are not allowed"));
-            }
+// app.use(                            //CORS, used specify which origins are permitted to access resources from server.
+//     cors({                          // allows all origins to make requests to this server.
+//         origin: function (origin, callback) {
+//             if(process.env.FRONTEND_URLS.split(",").indexOf(origin)!=-1) {
+//                 callback(null, true);
+//             } else {
+//                 callback(new Error(" You are not allowed"));
+//             }
+//         }
+//     })
+// )
+
+
+// Define allowed origins from environment variable
+const allowedOrigins = process.env.FRONTEND_URLS.split(',');
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            // Allow requests from valid origins or no origin (for localhost testing)
+            callback(null, true);
+        } else {
+            callback(new Error('You are not allowed by CORS'));
         }
-    })
-)
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,  // Allow cookies or authentication headers
+    optionsSuccessStatus: 204,  // To handle legacy browsers' OPTIONS requests
+};
+
+app.use(cors(corsOptions));
 
 
 //Test-API-call
