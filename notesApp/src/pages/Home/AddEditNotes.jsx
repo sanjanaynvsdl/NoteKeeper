@@ -1,19 +1,47 @@
 import React, { useState } from 'react';
 import TagInput from '../../components/Input/TagInput';
 import {MdClose} from 'react-icons/md'
+import axiosInstance from '../../utils/axiosInstance';
 
-const AddEditNotes=({type, notedata, onClose})=> {
+const AddEditNotes=({type, notedata, onClose,getAllnotes})=> {
 
     const [title, setTitle]=useState("");
     const [content, setContent]=useState("");
     const [tags, setTags]=useState([]);
     const [error, setError]=useState(null);
 
-    const addNewnote=async ()=>{};
+
+    const addNewnote= async ()=>{
+        try{
+            const response=await axiosInstance.post('/add-note', {
+                title,
+                content,
+                tags,
+            });
+
+            //unserstand the work-flow of this code!
+            if(response.data && response.data.note) {
+                getAllnotes();
+                onClose();
+            }
+            
+        } catch(error) {
+
+            if(error.response && error.response.data && error.response.data.message) {
+                setError(error.response.data.message);
+            }
+            else {
+                setError("An unexpected error occured, Please try again!")
+            }
+
+        }
+
+    };
     const editNote=async()=> {};
 
 
     const handleAddnote=()=> {
+        debugger
         if(!title) {
             setError("Please enter the title.");
             return;
@@ -46,7 +74,7 @@ const AddEditNotes=({type, notedata, onClose})=> {
                 type="text"
                 value={title}
                 onChange={(e)=> setTitle(e.target.value)}
-                placeholder='Go to Gym at 5'
+                placeholder='Compete " " task'
                 className='text-2xl text-slate-950 outline-none bg-transparent'/>
             </div>
 

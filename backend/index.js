@@ -217,6 +217,7 @@ app.post("/add-note", authenticateToken , async(req,res)=> {
 
         return res.json({
             error:false,
+            note,
             message:"Note added successfully!",
         });        
     } catch(e) {
@@ -386,9 +387,17 @@ app.listen(8000);
 module.exports=app;
 
 
+
+
+
+
+
+
+
+
+
+
 //Learn about the authenticateToken, 400, 401, 404, error - where to use which!
-
-
 //Example to understand the JWT more, better! 
 //BELOW CODE IS NOT RELARED TO THIS APPLICATION!
 //When token is VALID:
