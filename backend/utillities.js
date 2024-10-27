@@ -10,7 +10,7 @@ function authenticateToken(req, res, next) {
 
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user)=> {
         if(err) return res.sendStatus(401);
-
+        // console.log('Decoded token payload:', user); added for debugging!
         req.user=user;
         next();
     });

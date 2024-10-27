@@ -60,10 +60,7 @@ function SignUp() {
                 setError("An unexpected error occured, Please try again!")
 
             }
-
         }
-
-
     }
     
 

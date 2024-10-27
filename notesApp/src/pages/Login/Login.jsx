@@ -16,7 +16,7 @@ const Login = ()=> {
 
     const handleLogin= async (e)=> {
         e.preventDefault();
-        console.log("Submitted!")
+        // console.log("Submitted!")
 
         if(!validateEmail(email)) {
             setError("Please enter a valid Email!");

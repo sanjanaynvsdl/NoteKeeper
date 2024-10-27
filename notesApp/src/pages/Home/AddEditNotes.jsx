@@ -3,11 +3,11 @@ import TagInput from '../../components/Input/TagInput';
 import {MdClose} from 'react-icons/md'
 import axiosInstance from '../../utils/axiosInstance';
 
-const AddEditNotes=({type, notedata, onClose,getAllnotes})=> {
+const AddEditNotes=({type, notedata, onClose,getAllnotes, showToastMessagefn})=> {
 
-    const [title, setTitle]=useState("");
-    const [content, setContent]=useState("");
-    const [tags, setTags]=useState([]);
+    const [title, setTitle]=useState(notedata?.title || "");
+    const [content, setContent]=useState(notedata?.content || "");
+    const [tags, setTags]=useState(notedata?.tags || []);
     const [error, setError]=useState(null);
 
 
@@ -19,12 +19,13 @@ const AddEditNotes=({type, notedata, onClose,getAllnotes})=> {
                 tags,
             });
 
-            //unserstand the work-flow of this code!
+            
             if(response.data && response.data.note) {
+                showToastMessagefn("Note Added Successfully!");
                 getAllnotes();
                 onClose();
             }
-            
+
         } catch(error) {
 
             if(error.response && error.response.data && error.response.data.message) {
@@ -37,11 +38,31 @@ const AddEditNotes=({type, notedata, onClose,getAllnotes})=> {
         }
 
     };
-    const editNote=async()=> {};
+    const editNote=async()=> {
+        const noteId=notedata._id;
+        try{
+            const response=await axiosInstance.put("/edit-note/" + noteId , {
+                title, 
+                content,
+                tags,
+            })
+
+            if(response.data && response.data.note) {
+                showToastMessagefn("Note Updated Successfully!");
+                getAllnotes();
+                onClose();
+            }
+
+        }catch(e) {
+            if(error.response && error.response.data && error.response.data.message) {
+                setError(error.response.data.message);
+            }
+
+        }
+    };
 
 
     const handleAddnote=()=> {
-        debugger
         if(!title) {
             setError("Please enter the title.");
             return;
@@ -74,7 +95,7 @@ const AddEditNotes=({type, notedata, onClose,getAllnotes})=> {
                 type="text"
                 value={title}
                 onChange={(e)=> setTitle(e.target.value)}
-                placeholder='Compete " " task'
+                placeholder='Title for the note :)'
                 className='text-2xl text-slate-950 outline-none bg-transparent'/>
             </div>
 
@@ -103,7 +124,7 @@ const AddEditNotes=({type, notedata, onClose,getAllnotes})=> {
             {error && <p className='text-xs text-red-500 pt-5'>{error}</p>}
 
             {/* This buttons adds everything and a new notes is being added */}
-            <button className='btn-primary font-medium mt-5 p-3' onClick={handleAddnote}>ADD</button>
+            <button className='btn-primary font-medium mt-5 p-3' onClick={handleAddnote}>{type === "edit" ? "Update" : "Add"}</button>
         </div>
     )
 }

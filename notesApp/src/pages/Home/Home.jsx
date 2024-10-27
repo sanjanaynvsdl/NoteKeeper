@@ -1,11 +1,14 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '../../components/Navbar/Navbar';
 import NoteCard from '../../components/Cards/NoteCard';
-import {MdAdd} from 'react-icons/md';
+import { MdAdd } from 'react-icons/md';
 import AddEditNotes from './AddEditNotes';
 import Modal from 'react-modal'
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../utils/axiosInstance';
+import ToastMessage from '../../components/ToastMessage/ToastMessage';
+import EmptyCard from '../../components/Cards/EmptyCard';
+
 
 
 function Home() {
@@ -16,11 +19,42 @@ function Home() {
         type:"add",
         data:null,
     });
+
+    const [showToastMsg, setshowToastmsg]=useState({
+        isShown:false,
+        message:"",
+        type:"add",
+    });
     
     const [userInfo, setUserInfo]=useState(null);
     const [allNotes, setAllNotes]=useState([]);
+    const [isSearch, setIsSearch]=useState(false);
     const navigate=useNavigate();
 
+    //handle Edit
+    const handleEdit = async(noteDetails)=> {
+        setOpenEditModal({
+            isShown:true,
+            data:noteDetails,
+            type:"edit",
+        })
+
+    }
+
+    const showToastMessagefn= (message,type)=> {
+        setshowToastmsg({
+            isShown:true,
+            message,
+            type
+        });
+    }
+
+    const handleCloseToast= ()=> {
+        setshowToastmsg({
+            isShown:false,
+            message:"",
+        });
+    }
 
     //Get-User API call,
     //Pass this user-info to Nav-bar
@@ -39,7 +73,6 @@ function Home() {
         }
     }
 
-
     //get-all-notes
     const getAllnotes= async()=> {
         try{
@@ -52,6 +85,74 @@ function Home() {
         }
     }
 
+    //Delete Note
+    const deleteNote = async(data)=> {
+        const noteId=data._id;
+        try{
+
+            const response=await axiosInstance.delete("/delete-note/"+noteId);
+            if(response.data && !response.data.error) {
+                showToastMessagefn("Note deleted successfully!", 'delete');
+                getAllnotes();
+            }
+
+        } catch(e) {
+            if(
+                error.response &&
+                error.response.data &&
+                error.response.data.message 
+            ) {
+                console.log("An unexpected error occurred! Please, try again!")
+            }
+
+        }
+
+    }
+
+    //Search for a note!
+    const onSearchNote=async(query)=> {
+        try{
+            const response=await axiosInstance.get("/search-notes", {
+                params : {query},
+            });
+
+            if(response.data && response.data.notes) {
+                setIsSearch(true);
+                setAllNotes(response.data.notes);
+            }
+
+        } catch(e) {
+            console.log(e);
+
+        }
+        
+    }
+
+
+    //Handle isPinned API
+    const updateIsPinned = async(notedata)=> {
+        const noteId=notedata._id;
+        try{
+            const response=await axiosInstance.put("/update-note-pinned/" + noteId , {
+                isPinned:!notedata.isPinned
+            })
+
+            if(response.data && response.data.note) {
+                showToastMessagefn("Note Updated Successfully!");
+                getAllnotes();
+            }
+
+        }catch(e) {
+            console.log(e);
+
+        }
+
+    }
+    const handleClearSearch = ()=> {
+        setIsSearch(false);
+        getAllnotes();
+    }
+
     useEffect(()=> {
         getUserInfo();
         getAllnotes();
@@ -62,9 +163,12 @@ function Home() {
 
     return(
         <>
-            <Navbar userInfo={userInfo}/>
+            <Navbar 
+                userInfo={userInfo} 
+                onSearchNote = {onSearchNote}
+                handleClearSearch = {handleClearSearch}/>
             <div className='container mx-auto'>
-                <div className='grid grid-cols-3 gap-4 mt-8'>
+                {allNotes.length > 0 ? (<div className='grid grid-cols-3 gap-4 mt-8'>
                     {
                         allNotes.map((item,index)=> (
                         <NoteCard
@@ -74,12 +178,16 @@ function Home() {
                             content={item.content}
                             tags={item.tags}
                             isPinned={item.isPinned}
-                            onEdit={()=> {}}
-                            onDelete={()=>{}}
-                            onPinNote={()=> {}}/>
+                            onEdit={()=> handleEdit(item)}
+                            onDelete={()=> deleteNote(item)}
+                            onPinNote={()=> updateIsPinned(item)}/>
                         ))
                     }
-                </div>
+                </div> ): 
+                   ( <EmptyCard 
+                        imgSrc={isSearch ? 'https://static.thenounproject.com/png/4440902-200.png':'https://static.thenounproject.com/png/3720828-200.png'}
+                        message={isSearch ? `Oops!! no notes found matching your search.` :`Start creating your first note! 
+                        Click on the "ADD" button to note-down your thoughts, ideas and remainders!!`} /> )}
             </div> 
 
             
@@ -119,8 +227,16 @@ function Home() {
                 });
             }}
             getAllnotes={getAllnotes}
+            showToastMessagefn={showToastMessagefn}
             />
             </Modal>
+
+            <ToastMessage
+                isShown={showToastMsg.isShown}
+                message={showToastMsg.message}
+                type={showToastMsg.type}
+                onClose={handleCloseToast}
+            />
             
         </>
     )
